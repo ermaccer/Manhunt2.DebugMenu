@@ -1,5 +1,5 @@
 #include "mh2.h"
-
+char tempBuffer[256];
 
 CEntity * GetEntity(const char * name)
 {
@@ -26,6 +26,11 @@ void SetHunterHideHealth(CEntity * ent, float health)
 	CallMethod<0x4E1D20, CEntity*, float>(ent, health);
 }
 
+CVector GetEntityPosition(CEntity * ent)
+{
+	return CVector();
+}
+
 CEntity* FindPlayer()
 {
 	return *(CEntity**)0x789490;
@@ -44,4 +49,36 @@ bool IsAlive(CEntity * ent)
 	else
 		return false;
 }
+
+void SetDrawRGBA(int r, int g, int b, int a)
+{
+	Call<0x53F490, int, int, int, int>(r,g,b,a);
+}
+
+void PrintText(const char * text, float x, float y, float sizex, float sizey,float unk, EFontType font)
+{
+	Call<0x5443A0, const char*, float, float,float,float,float,EFontType>(text,x,y,sizex,sizey,unk,font);
+}
+
+void SetEntityFlag(CEntity * ent, int flag, bool state)
+{
+	CallMethod<0x41D3A0, CEntity*, int, bool>(ent, flag, state);
+}
+
+wchar_t * GetCollectableName(int id)
+{
+	return CallAndReturn<wchar_t*, 0x5248D0, int>(id);
+}
+
+char * GetRecordName(int id)
+{
+	Call<0x525D60, int, char*>(id, tempBuffer);
+	return tempBuffer;
+}
+
+int GetTimer()
+{
+	return *(int*)0x6ECE6C;
+}
+
 

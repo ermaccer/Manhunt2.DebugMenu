@@ -1,56 +1,97 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <iostream>
+#include <vector>
 #include <functional>
 
-#include "IniReader.h"
-#define MENU_PAGES 4
-#define MENU_PAGE_ENTRY 20
 
-
-struct MenuFunction {
-	std::string                       name;
-	std::function<void()>             func;
-	bool                              toggle;
-	int*                              addr;
-	char*                             addr_small;
-	bool                              hasfunction;
-	bool                              isWeapon;
-	bool                              isChar;
-	std::string                       record;
-	bool                              isFirearm;
-	int                               weaponId;
+struct EMenuPage {
+	int         iStart;
+	int         iEnd;
 };
 
+struct EMenuItem {
+	std::string                      name;
+	bool                             bIsWeapon;
+	bool                             bIsFunction;
+	bool                             bIsCharToggle;
+	bool                             bIsShortToggle;
+	bool                             bIsIntegerToggle;
+	int                              iWeaponID;
+	char*                            ptrCharValue;
+	short*                           ptrShortValue;
+	int*                             ptrIntValue;
+	std::function<void()>            fFunc;
+	// todo: add value items
+};
 
+struct EMenuCategory {
+	std::string            strName;
+	int                    iID;
+	bool                   bHasItems;
+	bool                   bIsWeapon;
+	std::vector<EMenuItem> vItems;
+	std::vector<EMenuItem> vWeapons;
+	std::vector<EMenuPage> vPages;
+	bool                   bHasBeenWeaponsPopulated;
+	bool                   bHaveBeenPagesCalculated;
+	int                    iPages;
+};
 
+class EMenu {
+private:
+	bool bDisplayMenu;
+	bool bCategoryOpen;
+	bool bNavigatingInCategory;
+	bool bPressedEnter;
+	bool bIsHoldingMenu;
 
-class CMenu {
+	int  iCurrentItem;
+	int  iActualItemID;
+	int  iCurrentPage;
+	int  iCurrentCategory;
+	int  iBaseCategoryID;
+	int  iTotalItems;
 
-	int displayMenu = 0;
-	int currentPage = 0;
-	int menuPosition = 0;
-	int lastEntry = 0;
-	std::unique_ptr<MenuFunction[]> menuEntries;
-
-	// menu settings
-	bool displayWeaponAvailable;
-	bool displayBackgroundBox;
-	int  menuKey;
-
+	std::vector<EMenuItem>     vTempItems;
+	std::vector<EMenuPage>     vTempPages;
+	std::vector<EMenuItem>     vTempWeapons;
+	std::vector<EMenuCategory> vCategories;
 public:
-	void InitMenu();
-	void ProcessMenu();
-	void ToggleMenu();
-	void RenderMenu();
-	void Control();
-	void AddFunction(std::string name, std::function<void()> func, bool toggle, int* addr, bool has_func, char* recordname, int weaponid, bool isweapon, bool isfirearm, char* addr_sm, bool is_char);
-	void CallFunction(std::string name, std::function<void()> func);
-	void CreateWeaponEntry(std::string name, int id, char* record, bool firearm);
-	void ToggleValue(std::string name, int* value);
-	void ToggleValueChar(std::string name, char* value);
-	int  GetFunctionsAmount();
-	
 
+	// settings
+	int  KeyEnableMenu;
+	int  KeyQuickCameraMain;
+	int  KeyQuickCameraSub;
+	int  KeyQuickCameraTeleport;
+	int  KeyMenuExecute;
+	int  KeyMenuGoBack;
+	int  KeyMenuItemUP;
+	int  KeyMenuItemDOWN;
+	int  KeyMenuItemLEFT;
+	int  KeyMenuItemRIGHT;
+
+
+
+	void Initialize();
+	void ProcessMenu();
+	void ProcessToggle();
+	void ProcessControls();
+	void DrawMenu();
+	void ProcessEnter();
+	void ProcessFastCam();
+	// menu stuff
+	void AddCategory(std::string name, bool isWeapon = false);
+	void AddItem(std::string name, bool isChar, bool isShort, bool isInt, bool isFunc, bool isWeapon, int weapID, char* ptrChar, short* ptrShort, int* ptrInt, std::function<void()> func);
+	void AddWeaponEntry(int weaponID);
+	void AddToggleCharEntry(std::string name, char* ptr);
+	void AddToggleIntEntry(std::string name, int* ptr);
+	// todo
+	void AddFunctionEntry(std::string name, std::function<void()> func);
 };
+
+
+void ResetTimer();
+std::string GetStatusAsString(int value);
+void __fastcall HookVisibility(int ptr);
+extern EMenu TheMenu;
+
+
