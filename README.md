@@ -6,10 +6,10 @@ as well as custom ones created exclusively for the menu.
 
 # What does it have?
 
-## #Weapon Spawner
+### Weapon Spawner
 
 Allows you to create any weapon currently loaded into level.
-## Player Control
+### Player Control
 
 Allows you to turn on/off god mode, disable fall damage, display coordinates.
 
