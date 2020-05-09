@@ -21,6 +21,7 @@ int&  iMemoryUsed = *(int*)0x75B300;
 int&  iCalibrationLines = *(int*)0x75B108;
 int&  iFreezeWorld = *(int*)0x78949C;
 int&  iFreeCamera = *(int*)0x7894A4;
+int&  iPlayerMovement = *(int*)0x6B17C4;
 
 // custom
 
@@ -33,6 +34,7 @@ int bFallDamage = 1;
 int bSilenceWeapons = 0;
 int bGiveMaxStars = 0;
 int bGodMode = 0;
+int bEnableKillCounter = 0;
 
 static int iTimer = GetTickCount();
 char msgBuffer[256];
@@ -143,6 +145,7 @@ void EMenu::Initialize()
 	AddCategory("Weapons", true);
 	AddToggleCharEntry("Timer", &bTimer);
 	AddToggleCharEntry("Body Count", &bBodyCount);
+	AddToggleIntEntry("Enable Body Count",&bEnableKillCounter);
 	AddCategory("HUD");
 	AddFunctionEntry("Free", SetWeatherFree);
 	AddFunctionEntry("Clear", SetWeatherClear);
@@ -171,7 +174,7 @@ void EMenu::Initialize()
 	AddToggleIntEntry("Silence Weapons", &bSilenceWeapons);
 	AddFunctionEntry("Change Difficulty to Sane", SetDifficultySane);
 	AddFunctionEntry("Change Difficulty to Insane", SetDifficultyInsane);
-	//AddFunctionEntry("Play Animation", PlayAnim);
+	AddToggleIntEntry("Allow Controls", &iPlayerMovement);
 	AddCategory("Misc.");
 }
 
@@ -187,8 +190,8 @@ void EMenu::ProcessMenu()
 	if (FindPlayer())
 		SetEntityFlag(FindPlayer(), 0x100, bGodMode);
 		
-
-
+	if (bEnableKillCounter)
+		Game::iBodyCounterKills = Game::iHuntersExecuted + Game::iHuntersKilled;
 
 
 	if (iFreeCamera)
@@ -229,9 +232,9 @@ void EMenu::ProcessMenu()
 	{
 		sprintf(buffer, "X: %.3f Y: %.3f Z: %.3f", *(float *)0x704F68, *(float *)0x704F6C, *(float *)0x704F70);
 		SetDrawRGBA(0, 0, 0, 255);
-		PrintText(buffer, 0.552f, 0, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+		PrintText(buffer, 0.552f, 0, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 		SetDrawRGBA(255, 255, 255, 255);
-		PrintText(buffer, 0.554f, 0, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+		PrintText(buffer, 0.554f, 0, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 	}
 
 
@@ -430,18 +433,18 @@ void EMenu::DrawMenu()
 
 			sprintf(msgBuffer, "ermaccer / dixmor-hospital.com", iCurrentPage + 1, vCategories[iCurrentCategory].vPages.size());
 			SetDrawRGBA(0, 0, 0, 255);
-			PrintText(msgBuffer, 0.048f, 0.012f, 0.5f, 0.5f, 0.0, FONT_SUBTITLE);
+			PrintText(msgBuffer, 0.048f, 0.012f, 0.5f, 0.5f, 0.0, FONT_TYPE_DEFAULT);
 			SetDrawRGBA(255, 255, 255, 255);
-			PrintText(msgBuffer, 0.050f, 0.010f, 0.5f, 0.5f, 0.0, FONT_SUBTITLE);
+			PrintText(msgBuffer, 0.050f, 0.010f, 0.5f, 0.5f, 0.0, FONT_TYPE_DEFAULT);
 
 
 			SetDrawRGBA(0, 0, 0, 255);
-			PrintText(vCategories[i].strName.c_str(), 0.048f, 0.102f + 0.04 * i, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+			PrintText(vCategories[i].strName.c_str(), 0.048f, 0.102f + 0.04 * i, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 			if (i == iCurrentCategory)
 				SetDrawRGBA(255, 64, 64, 255);
 			else
 				SetDrawRGBA(255, 255, 255, 255);
-			PrintText(vCategories[i].strName.c_str(), 0.050f, 0.10f + 0.04 * i, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+			PrintText(vCategories[i].strName.c_str(), 0.050f, 0.10f + 0.04 * i, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 
 			// draw sub items
 			if (vCategories[i].bHasItems && bCategoryOpen)
@@ -497,20 +500,20 @@ void EMenu::DrawMenu()
 							iActualItemID = j;
 							std::string entry = vCategories[i].vWeapons[j].name.c_str();
 							SetDrawRGBA(0, 0, 0, 255);
-							PrintText(entry.c_str(), 0.122f, 0.102f + 0.04 * (j - (vCategories[iCurrentCategory].vPages[iCurrentPage].iStart)), 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(entry.c_str(), 0.122f, 0.102f + 0.04 * (j - (vCategories[iCurrentCategory].vPages[iCurrentPage].iStart)), 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							if ((j - (vCategories[iCurrentCategory].vPages[iCurrentPage].iStart)) == iCurrentItem)
 								SetDrawRGBA(255, 64, 64, 255);
 							else
 								SetDrawRGBA(255, 255, 255, 255);
-							PrintText(entry.c_str(), 0.124f, 0.10f + 0.04 * (j - (vCategories[iCurrentCategory].vPages[iCurrentPage].iStart)), 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(entry.c_str(), 0.124f, 0.10f + 0.04 * (j - (vCategories[iCurrentCategory].vPages[iCurrentPage].iStart)), 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 						}
 						if (vCategories[iCurrentCategory].vPages.size() > 1)
 						{
 							sprintf(msgBuffer, "Page %d/%d", iCurrentPage + 1, vCategories[iCurrentCategory].vPages.size());
 							SetDrawRGBA(0, 0, 0, 255);
-							PrintText(msgBuffer, 0.122f, 0.808f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.122f, 0.808f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							SetDrawRGBA(255, 255, 255, 255);
-							PrintText(msgBuffer, 0.124f, 0.810f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.124f, 0.810f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 						}
 
 					}
@@ -550,9 +553,9 @@ void EMenu::DrawMenu()
 						{
 							sprintf(msgBuffer, "Press SPACE to teleport, press CTRL+V to quickly activate");
 							SetDrawRGBA(0, 0, 0, 255);
-							PrintText(msgBuffer, 0.122f, 0.852f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.122f, 0.852f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							SetDrawRGBA(255, 255, 255, 255);
-							PrintText(msgBuffer, 0.124f, 0.850f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.124f, 0.850f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 						}
 
 
@@ -560,9 +563,9 @@ void EMenu::DrawMenu()
 						{
 							sprintf(msgBuffer, "Will affect whole playthrough once activated.");
 							SetDrawRGBA(0, 0, 0, 255);
-							PrintText(msgBuffer, 0.122f, 0.852f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.122f, 0.852f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							SetDrawRGBA(255, 255, 255, 255);
-							PrintText(msgBuffer, 0.124f, 0.850f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(msgBuffer, 0.124f, 0.850f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 						}
 
 
@@ -585,12 +588,12 @@ void EMenu::DrawMenu()
 
 
 							SetDrawRGBA(0, 0, 0, 255);
-							PrintText(entry.c_str(), 0.122f, 0.102f + 0.04 * j, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(entry.c_str(), 0.122f, 0.102f + 0.04 * j, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							if (j == iCurrentItem)
 								SetDrawRGBA(255, 64, 64, 255);
 							else
 								SetDrawRGBA(255, 255, 255, 255);
-							PrintText(entry.c_str(), 0.124f, 0.10f + 0.04 * j, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+							PrintText(entry.c_str(), 0.124f, 0.10f + 0.04 * j, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 
 
 
@@ -598,9 +601,9 @@ void EMenu::DrawMenu()
 							{
 								sprintf(msgBuffer, "Page %d/%d", iCurrentPage + 1, vCategories[iCurrentCategory].vPages.size());
 								SetDrawRGBA(0, 0, 0, 255);
-								PrintText(msgBuffer, 0.122f, 0.808f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+								PrintText(msgBuffer, 0.122f, 0.808f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 								SetDrawRGBA(255, 255, 255, 255);
-								PrintText(msgBuffer, 0.124f, 0.810f, 0.7f, 0.7f, 0.0, FONT_SUBTITLE);
+								PrintText(msgBuffer, 0.124f, 0.810f, 0.7f, 0.7f, 0.0, FONT_TYPE_DEFAULT);
 							}
 						}
 					}
