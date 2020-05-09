@@ -6,25 +6,25 @@ as well as custom ones created exclusively for the menu.
 
 # What does it have?
 
-## Weapon Spawner
+## #Weapon Spawner
 
 Allows you to create any weapon currently loaded into level.
 ## Player Control
 
 Allows you to turn on/off god mode, disable fall damage, display coordinates.
 
-##  Weather Control
+###  Weather Control
 
 Allows you to change current weather
 
-## Level Control
+### Level Control
 
 Allows you to complete, fail, restart level or give 5*
 
-## HUD
+### HUD
 
 Allows you to toggle unused HUD features
-##  Misc
+###  Misc
 
 Anything that doesn't fit above categories, infinite ammo, silenced weapons, debug stuff,
 go search in it!
