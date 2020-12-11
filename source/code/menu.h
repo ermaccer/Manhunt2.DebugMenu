@@ -68,6 +68,8 @@ public:
 	int  KeyMenuItemDOWN;
 	int  KeyMenuItemLEFT;
 	int  KeyMenuItemRIGHT;
+	int  KeySlowMotion;
+	int  SlowMotionPressValue;
 
 
 
@@ -94,4 +96,10 @@ std::string GetStatusAsString(int value);
 void __fastcall HookVisibility(int ptr);
 extern EMenu TheMenu;
 
+void SetSpeed10();
+void SetSpeed25();
+void SetSpeed50();
+void SetSpeed75();
+void SetSpeedDefault();
 
+void SetSpeed(int speed);

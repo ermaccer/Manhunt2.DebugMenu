@@ -22,6 +22,9 @@ int&  iCalibrationLines = *(int*)0x75B108;
 int&  iFreezeWorld = *(int*)0x78949C;
 int&  iFreeCamera = *(int*)0x7894A4;
 int&  iPlayerMovement = *(int*)0x6B17C4;
+int&  iTimeControl = *(int*)0x75B7CC;
+
+int& iTimeStep = *(int*)0x695034;
 
 // custom
 
@@ -55,6 +58,7 @@ void EMenu::Initialize()
 	bPressedEnter = false;
 	bIsHoldingMenu = false;
 
+
 	CIniReader ini("");
 
 	KeyEnableMenu = ini.ReadInteger("Settings", "KeyEnableMenu", VK_F1);
@@ -67,6 +71,9 @@ void EMenu::Initialize()
 	KeyMenuItemUP = ini.ReadInteger("Settings", "KeyMenuItemUp", VK_UP);
 	KeyMenuItemLEFT = ini.ReadInteger("Settings", "KeyMenuItemLeft", VK_LEFT);
 	KeyMenuItemRIGHT = ini.ReadInteger("Settings", "KeyMenuItemRight", VK_RIGHT);
+	KeySlowMotion = ini.ReadInteger("Settings", "KeySlowMotion", VK_F5);
+
+	SlowMotionPressValue = 16;
 
 	AddToggleIntEntry("Infinite Health", &bPlayerInfiniteHealth);
 	AddToggleIntEntry("God Mode", &bGodMode);
@@ -160,6 +167,13 @@ void EMenu::Initialize()
 	AddFunctionEntry("Fail", FailLevel);
 	AddFunctionEntry("Give 5*", Hook5Stars);
 	AddCategory("Level");
+	AddToggleIntEntry("Enable", &iTimeControl);
+	AddFunctionEntry("10%", SetSpeed10);
+	AddFunctionEntry("25%", SetSpeed25);
+	AddFunctionEntry("50%", SetSpeed50);
+	AddFunctionEntry("75%", SetSpeed75);
+	AddFunctionEntry("Default", SetSpeedDefault);
+	AddCategory("Slowmotion");
 	AddToggleCharEntry("Quick Select", &bQuickSelect);
 	AddToggleCharEntry("Blood (false - flowers)", &bFlowerBlood);
 	AddToggleIntEntry("Fun Mode", &bFunMode);
@@ -175,7 +189,9 @@ void EMenu::Initialize()
 	AddFunctionEntry("Change Difficulty to Sane", SetDifficultySane);
 	AddFunctionEntry("Change Difficulty to Insane", SetDifficultyInsane);
 	AddToggleIntEntry("Allow Controls", &iPlayerMovement);
+
 	AddCategory("Misc.");
+
 }
 
 void EMenu::ProcessMenu()
@@ -238,11 +254,21 @@ void EMenu::ProcessMenu()
 	}
 
 
+	if (KeyHit(KeySlowMotion))
+	{
+		if (GetTickCount() - iTimer <= 240) return;
+		iTimeControl ^= 1;
+		iTimer = GetTickCount();
+
+	}
 
 	if (*(int*)0x75F204 == 1 || !FindPlayer()) bDisplayMenu = 0;
 
 	ProcessToggle();
 	
+
+
+
 	if (bDisplayMenu)
 	{
 		DrawMenu();
@@ -716,4 +742,35 @@ std::string GetStatusAsString(int value)
 void __fastcall HookVisibility(int ptr)
 {
 	if (!bDisableAI) CallMethod<0x420100, int>(ptr);
+}
+
+void SetSpeed10()
+{
+	SetSpeed(1);
+}
+
+void SetSpeed25()
+{
+	SetSpeed(4);
+}
+
+void SetSpeed50()
+{
+	SetSpeed(8);
+}
+
+void SetSpeed75()
+{
+	SetSpeed(12);
+}
+
+void SetSpeedDefault()
+{
+	iTimeStep = 16;
+}
+
+void SetSpeed(int speed)
+{
+	TheMenu.SlowMotionPressValue = speed;
+	iTimeStep = speed;
 }
